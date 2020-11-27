@@ -45,12 +45,16 @@ QMAKE_CXXFLAGS_WARN_ON += -Wdouble-promotion
 
 HEADERS = \
     icons.h \
-    mainwindow.h
+    mainwindow.h \
+    medo/appsetupmutex.h \
+    medo/singleinstance.h
 
 SOURCES = \
     app.cpp \
     icons.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    medo/appsetupmutex.cpp \
+    medo/singleinstance.cpp
 
 FORMS += \
     mainwindow.ui
