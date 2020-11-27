@@ -44,10 +44,12 @@ QMAKE_CXXFLAGS_WARN_ON += -Wdouble-promotion
 
 
 HEADERS = \
+    icons.h \
     mainwindow.h
 
 SOURCES = \
     app.cpp \
+    icons.cpp \
     mainwindow.cpp
 
 FORMS += \
