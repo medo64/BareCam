@@ -35,6 +35,7 @@
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <customwidgets>
   <customwidget>
@@ -44,5 +45,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections/>
 </ui>

@@ -63,9 +63,9 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
 
     startNextCamera();
 
-    _statusUpdateTimer.reset(new QTimer(this));
-    connect(_statusUpdateTimer, &QTimer::timeout, this, &QMainWindow::onStatusUpdate);
-    _statusUpdateTimer->start(15000);
+    _statusUpdateTimer = new QTimer(this);
+    connect(_statusUpdateTimer, &QTimer::timeout, this, &MainWindow::onStatusUpdate);
+    _statusUpdateTimer->start(1000);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* e) {
@@ -80,9 +80,14 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
 
 
 void MainWindow::startNextCamera() {
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    QString newDescription;
+
     if (_cameraName.isNull()) { //start new
         _cameraName = QCameraInfo::defaultCamera().deviceName();
-    } else if (QCameraInfo::availableCameras().length() > 1) {
+        newDescription = QCameraInfo::defaultCamera().description();
+    } else {
         auto cameras = QCameraInfo::availableCameras();
         auto camerasCount = cameras.length();
         int currentIndex = 0;
@@ -94,11 +99,40 @@ void MainWindow::startNextCamera() {
         }
         auto camera = cameras[(currentIndex + 1) % camerasCount];
         _cameraName = camera.deviceName();
+        newDescription = camera.description();
+    }
+
+    if (!_camera.isNull()) { disconnect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate); }
+
+    if (!newDescription.isEmpty()) {
+        statusBar()->setVisible(true);
+        statusBar()->showMessage("Activating " + newDescription);
+        statusBar()->show();
+        QCoreApplication::processEvents();
     }
 
     _camera.reset(new QCamera(_cameraName.toLatin1()));
     _camera->setViewfinder(ui->viewfinder);
 
+    connect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate);
+
     qDebug().noquote().nospace() << "[Camera] Starting " << _cameraName;
     _camera->start();
+
+    QApplication::restoreOverrideCursor();
+}
+
+void MainWindow::onStatusUpdate() {
+    bool hasIssues = !_camera->isAvailable();
+    if (hasIssues) { //show issues
+        QString errorText = _camera->errorString();
+        if (errorText.isEmpty()) { errorText = "Not available."; }
+        if (!statusBar()->isVisible() || (errorText != statusBar()->currentMessage())) {
+            this->statusBar()->showMessage(errorText);
+            this->statusBar()->setVisible(true);
+        }
+    } else if (!hasIssues && this->statusBar()->isVisible()) { //no issues anymore
+        this->statusBar()->setVisible(false);
+        this->statusBar()->clearMessage();
+    }
 }

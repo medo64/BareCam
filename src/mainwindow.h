@@ -2,6 +2,7 @@
 
 #include <QCamera>
 #include <QScopedPointer>
+#include <QTimer>
 
 
 #include <QMainWindow>
@@ -24,5 +25,9 @@ class MainWindow : public QMainWindow {
         Ui::MainWindow* ui;
         QString _cameraName;
         QScopedPointer<QCamera> _camera;
+        QTimer* _statusUpdateTimer = nullptr;
+
+    private slots:
+        void onStatusUpdate();
 
 };
