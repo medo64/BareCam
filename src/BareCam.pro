@@ -15,7 +15,8 @@ DEFINES += "APP_QT_VERSION=\\\"$$QT_VERSION\\\""
 TEMPLATE = app
 TARGET = barecam
 
-QT+= core gui widgets
+QT += core gui widgets
+QT += network                       # SingleInstance:QLocalServer/QLocalSocket
 QT += multimedia multimediawidgets
 
 unix {
