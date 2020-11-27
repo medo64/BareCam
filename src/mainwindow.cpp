@@ -19,11 +19,9 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
         this->activateWindow(); //workaround for Windows
     });
 
-    //camera
-    auto defaultCamera = QCameraInfo::defaultCamera();
-
     //debug
 #ifdef QT_DEBUG
+    auto defaultCamera = QCameraInfo::defaultCamera();
     for (const QCameraInfo& dCameraInfo : QCameraInfo::availableCameras()) {
         bool isDefault = (dCameraInfo == defaultCamera);
         qDebug().noquote().nospace() << "[Camera]" << dCameraInfo.description() << (isDefault ? "*" : "");
@@ -63,7 +61,44 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     }
 #endif
 
-    _camera.reset(new QCamera(defaultCamera));
+    startNextCamera();
+
+    _statusUpdateTimer.reset(new QTimer(this));
+    connect(_statusUpdateTimer, &QTimer::timeout, this, &QMainWindow::onStatusUpdate);
+    _statusUpdateTimer->start(15000);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* e) {
+    QMessageBox msgBox;
+
+    if (e->key() == Qt::Key_Space) {
+        startNextCamera();
+    }
+
+    QMainWindow::keyPressEvent(e);
+}
+
+
+void MainWindow::startNextCamera() {
+    if (_cameraName.isNull()) { //start new
+        _cameraName = QCameraInfo::defaultCamera().deviceName();
+    } else if (QCameraInfo::availableCameras().length() > 1) {
+        auto cameras = QCameraInfo::availableCameras();
+        auto camerasCount = cameras.length();
+        int currentIndex = 0;
+        for (int i = 0; i < camerasCount; i++) {
+            if (cameras[i].deviceName() == _cameraName) {
+                currentIndex = i;
+                break;
+            }
+        }
+        auto camera = cameras[(currentIndex + 1) % camerasCount];
+        _cameraName = camera.deviceName();
+    }
+
+    _camera.reset(new QCamera(_cameraName.toLatin1()));
     _camera->setViewfinder(ui->viewfinder);
+
+    qDebug().noquote().nospace() << "[Camera] Starting " << _cameraName;
     _camera->start();
 }

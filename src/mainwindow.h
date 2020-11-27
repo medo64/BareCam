@@ -14,8 +14,15 @@ class MainWindow : public QMainWindow {
     public:
         MainWindow();
 
+    protected:
+        virtual void keyPressEvent(QKeyEvent* event);
+
+    private:
+        void startNextCamera();
+
     private:
         Ui::MainWindow* ui;
+        QString _cameraName;
         QScopedPointer<QCamera> _camera;
 
 };
