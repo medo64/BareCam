@@ -93,23 +93,30 @@ void MainWindow::startNextCamera() {
 
     QString newDescription;
 
+    auto cameras = QCameraInfo::availableCameras();
+    auto camerasCount = cameras.length();
+
+    QCameraInfo nextCamera = QCameraInfo::defaultCamera();
+
     if (_cameraName.isNull()) { //start new
-        _cameraName = QCameraInfo::defaultCamera().deviceName();
-        newDescription = QCameraInfo::defaultCamera().description();
-    } else {
-        auto cameras = QCameraInfo::availableCameras();
-        auto camerasCount = cameras.length();
-        int currentIndex = 0;
+        QString lastUsedDeviceName = Settings::lastUsedDevice();
         for (int i = 0; i < camerasCount; i++) {
-            if (cameras[i].deviceName() == _cameraName) {
-                currentIndex = i;
+            if (cameras[i].deviceName() == lastUsedDeviceName) {
+                nextCamera = cameras[i];
                 break;
             }
         }
-        auto camera = cameras[(currentIndex + 1) % camerasCount];
-        _cameraName = camera.deviceName();
-        newDescription = camera.description();
+    } else {
+        for (int i = 0; i < camerasCount; i++) {
+            if (cameras[i].deviceName() == _cameraName) {
+                nextCamera = cameras[(i + 1) % camerasCount];
+                break;
+            }
+        }
     }
+
+    _cameraName = nextCamera.deviceName();
+    newDescription = nextCamera.description();
 
     if (!_camera.isNull()) { disconnect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate); }
 
@@ -120,6 +127,7 @@ void MainWindow::startNextCamera() {
         QCoreApplication::processEvents();
     }
 
+    Settings::setLastUsedDevice(_cameraName);
     _camera.reset(new QCamera(_cameraName.toLatin1()));
     _camera->setViewfinder(ui->viewfinder);
 
