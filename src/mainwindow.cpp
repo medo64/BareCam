@@ -157,8 +157,11 @@ void MainWindow::showMenu() {
         }
     }
 
-    auto center = this->contentsRect().center();
-    menu.exec(center);
+    auto rect = this->contentsRect();
+    auto point = rect.center();
+    point.rx() -= menu.sizeHint().width() / 2; //move it left a bit
+    point.ry() -= menu.sizeHint().height() / 2; //move it up a bit
+    menu.exec(point);
 }
 
 
