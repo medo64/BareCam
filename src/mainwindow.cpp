@@ -62,7 +62,7 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     }
 #endif
 
-    startNextCamera();
+    startNextCamera(Settings::lastUsedDevice());
 
     _statusUpdateTimer = new QTimer(this);
     connect(_statusUpdateTimer, &QTimer::timeout, this, &MainWindow::onStatusUpdate);
@@ -78,6 +78,10 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
             if (Settings::useEscapeToExit()) { close(); }
             break;
 
+        case Qt::Key_Return:
+            showMenu();
+            break;
+
         case Qt::Key_Space:
             startNextCamera();
             break;
@@ -88,7 +92,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
 }
 
 
-void MainWindow::startNextCamera() {
+void MainWindow::startNextCamera(QString deviceName) {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     QString newDescription;
@@ -98,15 +102,14 @@ void MainWindow::startNextCamera() {
 
     QCameraInfo nextCamera = QCameraInfo::defaultCamera();
 
-    if (_cameraName.isNull()) { //start new
-        QString lastUsedDeviceName = Settings::lastUsedDevice();
+    if (_cameraName.isNull() || !deviceName.isEmpty()) { //start new
         for (int i = 0; i < camerasCount; i++) {
-            if (cameras[i].deviceName() == lastUsedDeviceName) {
+            if (cameras[i].deviceName() == deviceName) {
                 nextCamera = cameras[i];
                 break;
             }
         }
-    } else {
+    } else { //switch to next
         for (int i = 0; i < camerasCount; i++) {
             if (cameras[i].deviceName() == _cameraName) {
                 nextCamera = cameras[(i + 1) % camerasCount];
@@ -137,6 +140,32 @@ void MainWindow::startNextCamera() {
     _camera->start();
 
     QApplication::restoreOverrideCursor();
+}
+
+void MainWindow::showMenu() {
+    QMenu menu(this);
+
+    QString currentDeviceName = Settings::lastUsedDevice();
+
+    for (const QCameraInfo& camera : QCameraInfo::availableCameras()) {
+        QString deviceName = camera.deviceName();
+        auto action = menu.addAction(camera.description(), this, &MainWindow::onMenuCameraSelected);
+        action->setData(deviceName);
+        if (deviceName == currentDeviceName) {
+            action->setCheckable(true);
+            action->setChecked(true);
+        }
+    }
+
+    auto center = this->contentsRect().center();
+    menu.exec(center);
+}
+
+
+void MainWindow::onMenuCameraSelected() {
+    QAction* action = qobject_cast<QAction*>(sender());
+    QString deviceName = action->data().toString();
+    startNextCamera(deviceName);
 }
 
 void MainWindow::onStatusUpdate() {

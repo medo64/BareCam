@@ -19,7 +19,8 @@ class MainWindow : public QMainWindow {
         virtual void keyPressEvent(QKeyEvent* event);
 
     private:
-        void startNextCamera();
+        void startNextCamera(QString deviceName = QString());
+        void showMenu();
 
     private:
         Ui::MainWindow* ui;
@@ -28,6 +29,7 @@ class MainWindow : public QMainWindow {
         QTimer* _statusUpdateTimer = nullptr;
 
     private slots:
+        void onMenuCameraSelected();
         void onStatusUpdate();
 
 };

@@ -8,4 +8,6 @@ The simplest full-screen camera.
 
 | Key               | Description                                            |
 |-------------------|--------------------------------------------------------|
+| `Escape`          | Exit application                                       |
+| `Enter`           | Show menu                                              |
 | `Space`           | Change camera                                          |
