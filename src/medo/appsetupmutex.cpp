@@ -18,6 +18,7 @@ AppSetupMutex::AppSetupMutex(const QString& mutexName) {
         qDebug().noquote() << "[AppSetupMutex]" << mutexName << "could not be created";
     }
 #endif
+    qDebug().noquote() << "[AppSetupMutex]" << mutexName << "not used under Linux"; //just here to avoid worning about unused mutexName argument
 }
 
 AppSetupMutex::~AppSetupMutex() {
