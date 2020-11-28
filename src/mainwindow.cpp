@@ -1,5 +1,6 @@
 #include "medo/singleinstance.h"
 #include "icons.h"
+#include "settings.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -71,8 +72,16 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
 void MainWindow::keyPressEvent(QKeyEvent* e) {
     QMessageBox msgBox;
 
-    if (e->key() == Qt::Key_Space) {
-        startNextCamera();
+    switch (e->key()) {
+
+        case Qt::Key_Escape:
+            if (Settings::useEscapeToExit()) { close(); }
+            break;
+
+        case Qt::Key_Space:
+            startNextCamera();
+            break;
+
     }
 
     QMainWindow::keyPressEvent(e);
