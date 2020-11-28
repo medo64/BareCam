@@ -8,5 +8,5 @@ Description:    The simplest full-screen camera.
  window and allow you to switch to next camera using space.
 Section:        video
 Priority:       optional
-Depends:        libc6, gnupg2, qtbase5-dev, libqt5x11extras5, openssl
+Depends:        libc6, gnupg2, qtbase5-dev, libqt5x11extras5, openssl, libqt5multimedia5 libqt5multimedia5-plugins libqt5multimediawidgets5
 Build-Depends:  qtbase5-dev, libqt5x11extras5-dev qtmultimedia5-dev
