@@ -11,6 +11,14 @@ void Settings::setUseEscapeToExit(bool newUseEscapeToExit) {
 }
 
 
+bool Settings::disableScreensaver() {
+    return Config::read("DisableScreensaver", defaultDisableScreensaver());
+}
+
+void Settings::setDisableScreensaver(bool newDisableScreensaver) {
+    Config::write("DisableScreensaver", newDisableScreensaver);
+}
+
 
 // state
 

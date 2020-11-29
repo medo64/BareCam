@@ -50,6 +50,7 @@ HEADERS = \
     medo/singleinstance.h \
     icons.h \
     mainwindow.h \
+    screensaver.h \
     settings.h
 
 SOURCES = \
@@ -59,6 +60,7 @@ SOURCES = \
     app.cpp \
     icons.cpp \
     mainwindow.cpp \
+    screensaver.cpp \
     settings.cpp
 
 FORMS += \

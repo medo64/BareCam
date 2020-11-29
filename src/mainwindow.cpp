@@ -1,5 +1,6 @@
 #include "medo/singleinstance.h"
 #include "icons.h"
+#include "screensaver.h"
 #include "settings.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -19,6 +20,8 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
         this->raise(); //workaround for MacOS
         this->activateWindow(); //workaround for Windows
     });
+
+    if (Settings::disableScreensaver()) { Screensaver::Suspend(); }
 
     //debug
 #ifdef QT_DEBUG
@@ -67,6 +70,11 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     _statusUpdateTimer = new QTimer(this);
     connect(_statusUpdateTimer, &QTimer::timeout, this, &MainWindow::onStatusUpdate);
     _statusUpdateTimer->start(1000);
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+    Screensaver::Resume();
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* e) {
