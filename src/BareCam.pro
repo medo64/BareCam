@@ -19,11 +19,6 @@ QT += core gui widgets
 QT += network                       # SingleInstance:QLocalServer/QLocalSocket
 QT += multimedia multimediawidgets
 
-unix {
-    QT  += x11extras
-    LIBS += -lX11 -lxcb
-}
-
 win32 {
     QMAKE_TARGET_PRODUCT = $$APP_PRODUCT
     QMAKE_TARGET_COMPANY = $$APP_COMPANY
