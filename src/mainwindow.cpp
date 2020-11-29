@@ -21,7 +21,7 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
         this->activateWindow(); //workaround for Windows
     });
 
-    if (Settings::disableScreensaver()) { Screensaver::Suspend(); }
+    if (Settings::disableScreensaver()) { Screensaver::Suspend(winId()); }
 
     //debug
 #ifdef QT_DEBUG
