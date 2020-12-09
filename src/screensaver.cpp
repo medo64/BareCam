@@ -32,7 +32,7 @@ void Screensaver::Resume() {
     }
 #elif defined(Q_OS_LINUX)
     if (_suspendedWindowId != nullptr) { //do it only once
-        QProcess::startDetached("xdg-screensaver", QStringList({ "result", "0x" + QString::number(*_suspendedWindowId, 16) }));
+        QProcess::startDetached("xdg-screensaver", QStringList({ "resume", "0x" + QString::number(*_suspendedWindowId, 16) }));
         delete _suspendedWindowId;
         _suspendedWindowId = nullptr;
     }
