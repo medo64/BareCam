@@ -22,6 +22,7 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     });
 
     if (Settings::disableScreensaver()) { Screensaver::Suspend(winId()); }
+    setCursor(Qt::BlankCursor);
 
     //debug
 #ifdef QT_DEBUG
