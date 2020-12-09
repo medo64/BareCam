@@ -1,6 +1,6 @@
 APP_PRODUCT = "BareCam"
 APP_COMPANY = "Josip Medved"
-APP_VERSION = "0.0.2"
+APP_VERSION = "0.0.3"
 APP_COPYRIGHT = "Copyright 2020 Josip Medved <jmedved@jmedved.com>"
 APP_DESCRIPTION = "The simplest full-screen camera."
 
