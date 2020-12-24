@@ -22,6 +22,14 @@ class MainWindow : public QMainWindow {
     private:
         void startNextCamera(QString deviceName = QString());
         void showMenu();
+        void setWindowSize(int width, int height, int alignment);
+        int _cameraWidth = 0;
+        int _cameraHeight = 0;
+        int _lastLeft = 0;
+        int _lastTop = 0;
+        int _lastWidth = 0;
+        int _lastHeight = 0;
+        int _lastAlignment = -1;  // -1 is floating
 
     private:
         Ui::MainWindow* ui;
