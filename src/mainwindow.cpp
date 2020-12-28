@@ -1,6 +1,6 @@
 #include <math.h>
 #include <QCameraInfo>
-#include <QDesktopWidget>
+#include <QGuiApplication>
 #include <QtWidgets>
 #include "medo/singleinstance.h"
 #include "icons.h"
@@ -226,7 +226,8 @@ void MainWindow::setWindowSize(int width, int height, int alignment) {
     int newWidth = width;
     int newHeight = height;
 
-    QRect desktopRect =  this->window()->screen()->geometry();
+    auto screenNumber = QApplication::desktop()->screenNumber(this);
+    QRect desktopRect = QGuiApplication::screens().at(screenNumber)->geometry();
     if (width == 0) { width = desktopRect.width() / 3; }
     if (height == 0) { height = desktopRect.height() / 3; }
     if (width > desktopRect.width()) { width = desktopRect.width(); }
