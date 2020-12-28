@@ -104,6 +104,8 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
         case Qt::Key_8: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperCenter); break;
         case Qt::Key_9: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperRight); break;
 
+        case Qt::Key_Minus: changeWindowSize(-1); break;
+        case Qt::Key_Plus: changeWindowSize(+1); break;
 
         case Qt::Key_Escape:
             if (Settings::useEscapeToExit()) { close(); }
@@ -334,4 +336,26 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
     }
 
     _lastAlignment = alignment;
+}
+
+void MainWindow::changeWindowSize(int difference) {
+    if (_lastAlignment == 0) { return; }  // ignore if full screen
+
+    int width = this->width();
+    int height = this->height();
+    double ratio = (double)_cameraWidth / _cameraHeight;
+
+    int newWidth, newHeight;
+    if (height <= width) {
+        int delta = difference * std::max(1, height / 100);  // to have a bit larger steps
+        newWidth = (int)round((height + delta) * ratio);
+        newHeight = (int)round(newWidth / ratio);
+    } else {
+        int delta = difference * std::max(1, width / 100);  // to have a bit larger steps
+        newHeight = (int)round((width + delta) / ratio);
+        newWidth = (int)round(newHeight * ratio);
+    }
+
+    if ((newWidth < 200) || (newHeight < 200)) { return; }
+    setWindowSize(newWidth, newHeight, _lastAlignment);
 }
