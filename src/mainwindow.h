@@ -20,16 +20,31 @@ class MainWindow : public QMainWindow {
         virtual void keyPressEvent(QKeyEvent* event);
 
     private:
+        enum Alignment {
+            Custom = -1,
+            FullScreen = 0,
+            LowerLeft = 1,
+            LowerCenter = 2,
+            LowerRight = 3,
+            MiddleLeft = 4,
+            MiddleCenter = 5,
+            MiddleRight = 6,
+            UpperLeft = 7,
+            UpperCenter = 8,
+            UpperRight = 9,
+        };
+
+    private:
         void startNextCamera(QString deviceName = QString());
         void showMenu();
-        void setWindowSize(int width, int height, int alignment);
+        void setWindowSize(int width, int height, Alignment alignment);
         int _cameraWidth = 0;
         int _cameraHeight = 0;
         int _lastLeft = 0;
         int _lastTop = 0;
         int _lastWidth = 0;
         int _lastHeight = 0;
-        int _lastAlignment = -1;  // -1 is floating
+        Alignment _lastAlignment = Alignment::Custom;
 
     private:
         Ui::MainWindow* ui;

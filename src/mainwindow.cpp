@@ -69,6 +69,7 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
 #endif
 
     startNextCamera(Settings::lastUsedDevice());
+    setWindowSize(0, 0, Alignment::FullScreen);
 
     _statusUpdateTimer = new QTimer(this);
     connect(_statusUpdateTimer, &QTimer::timeout, this, &MainWindow::onStatusUpdate);
@@ -86,21 +87,23 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
     switch (e->key()) {
 
         case Qt::Key_0:
-            if (_lastAlignment != 0) {
-                setWindowSize(_lastWidth, _lastHeight, 0); break;
+            if (_lastAlignment != Alignment::FullScreen) {
+                setWindowSize(_lastWidth, _lastHeight, Alignment::FullScreen);
             } else {
-                setWindowSize(_lastWidth, _lastHeight, -1); break;
+                setWindowSize(_lastWidth, _lastHeight, Alignment::Custom);
             }
+            break;
 
-        case Qt::Key_1: setWindowSize(_lastWidth, _lastHeight, 1); break;
-        case Qt::Key_2: setWindowSize(_lastWidth, _lastHeight, 2); break;
-        case Qt::Key_3: setWindowSize(_lastWidth, _lastHeight, 3); break;
-        case Qt::Key_4: setWindowSize(_lastWidth, _lastHeight, 4); break;
-        case Qt::Key_5: setWindowSize(_lastWidth, _lastHeight, 5); break;
-        case Qt::Key_6: setWindowSize(_lastWidth, _lastHeight, 6); break;
-        case Qt::Key_7: setWindowSize(_lastWidth, _lastHeight, 7); break;
-        case Qt::Key_8: setWindowSize(_lastWidth, _lastHeight, 8); break;
-        case Qt::Key_9: setWindowSize(_lastWidth, _lastHeight, 9); break;
+        case Qt::Key_1: setWindowSize(_lastWidth, _lastHeight, Alignment::LowerLeft); break;
+        case Qt::Key_2: setWindowSize(_lastWidth, _lastHeight, Alignment::LowerCenter); break;
+        case Qt::Key_3: setWindowSize(_lastWidth, _lastHeight, Alignment::LowerRight); break;
+        case Qt::Key_4: setWindowSize(_lastWidth, _lastHeight, Alignment::MiddleLeft); break;
+        case Qt::Key_5: setWindowSize(_lastWidth, _lastHeight, Alignment::MiddleCenter); break;
+        case Qt::Key_6: setWindowSize(_lastWidth, _lastHeight, Alignment::MiddleRight); break;
+        case Qt::Key_7: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperLeft); break;
+        case Qt::Key_8: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperCenter); break;
+        case Qt::Key_9: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperRight); break;
+
 
         case Qt::Key_Escape:
             if (Settings::useEscapeToExit()) { close(); }
@@ -168,7 +171,7 @@ void MainWindow::startNextCamera(QString deviceName) {
         _cameraHeight = dSettings.resolution().height();
         break;
     }
-    setWindowSize(this->width(), this->height(), 0);
+    setWindowSize(this->width(), this->height(), _lastAlignment);
 
     connect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate);
 
@@ -222,7 +225,7 @@ void MainWindow::onStatusUpdate() {
     }
 }
 
-void MainWindow::setWindowSize(int width, int height, int alignment) {
+void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
     int newWidth = width;
     int newHeight = height;
 
@@ -248,52 +251,52 @@ void MainWindow::setWindowSize(int width, int height, int alignment) {
     rect.setHeight(newHeight);
 
     switch (alignment) {
-        case 1:  // bottom-left
+        case Alignment::LowerLeft:
             rect.moveLeft(desktopRect.left());
             rect.moveTop(desktopRect.bottom() - newHeight + 1);
             break;
 
-        case 2:  // bottom-center
+        case Alignment::LowerCenter:
             rect.moveLeft(desktopRect.left() + (desktopRect.width() - newWidth) / 2);
             rect.moveTop(desktopRect.bottom() - newHeight + 1);
             break;
 
-        case 3:  // bottom-right
+        case Alignment::LowerRight:
             rect.moveLeft(desktopRect.right() - newWidth + 1);
             rect.moveTop(desktopRect.bottom() - newHeight + 1);
             break;
 
-        case 4:  // middle-left
+        case Alignment::MiddleLeft:
             rect.moveLeft(desktopRect.left());
             rect.moveTop(desktopRect.top() + (desktopRect.height() - newHeight) / 2);
             break;
 
-        case 5:  // middle-center
+        case Alignment::MiddleCenter:
             rect.moveLeft(desktopRect.left() + (desktopRect.width() - newWidth) / 2);
             rect.moveTop(desktopRect.top() + (desktopRect.height() - newHeight) / 2);
             break;
 
-        case 6:  // middle-right
+        case Alignment::MiddleRight:
             rect.moveLeft(desktopRect.right() - newWidth + 1);
             rect.moveTop(desktopRect.top() + (desktopRect.height() - newHeight) / 2);
             break;
 
-        case 7:  // top-left
+        case Alignment::UpperLeft:
             rect.moveLeft(desktopRect.left());
             rect.moveTop(desktopRect.top());
             break;
 
-        case 8:  // top-center
+        case Alignment::UpperCenter:
             rect.moveLeft(desktopRect.left() + (desktopRect.width() - newWidth) / 2);
             rect.moveTop(desktopRect.top());
             break;
 
-        case 9:  // top-right
+        case Alignment::UpperRight:
             rect.moveLeft(desktopRect.right() - newWidth + 1);
             rect.moveTop(desktopRect.top());
             break;
 
-        case 0:  // full-screen
+        case Alignment::FullScreen:
             break;
 
         default: // free flowing
@@ -304,24 +307,24 @@ void MainWindow::setWindowSize(int width, int height, int alignment) {
             break;
     }
 
-    if (alignment == 0) {  // full screen
+    if (alignment == Alignment::FullScreen) {  // full screen
 
-        if (_lastAlignment != 0) {
+        if (_lastAlignment != Alignment::FullScreen) {
             setCursor(Qt::BlankCursor);
             setWindowState(Qt::WindowFullScreen);
         }
 
     } else {  // not full screen
 
-        if (_lastAlignment == 0) {
+        if (_lastAlignment == Alignment::FullScreen) {
             setWindowState(Qt::WindowActive);
             this->unsetCursor();
         }
 
         this->setGeometry(rect);
 
-        if (_lastAlignment != 0) {
-            if (_lastAlignment == -1) {
+        if (_lastAlignment != Alignment::FullScreen) {
+            if (_lastAlignment == Alignment::Custom) {
                 _lastLeft = rect.left();
                 _lastTop = rect.top();
             }
