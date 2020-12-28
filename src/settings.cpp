@@ -20,6 +20,15 @@ void Settings::setDisableScreensaver(bool newDisableScreensaver) {
 }
 
 
+bool Settings::fullScreenStartup() {
+    return Config::read("FullScreenStartup", defaultFullScreenStartup());
+}
+
+void Settings::setFullScreenStartup(bool newFullScreenStartup) {
+    Config::write("FullScreenStartup", newFullScreenStartup);
+}
+
+
 // state
 
 QString Settings::lastUsedDevice() {
@@ -28,4 +37,15 @@ QString Settings::lastUsedDevice() {
 
 void Settings::setLastUsedDevice(QString newLastUsedDevice) {
     Config::stateWrite("LastUsedDevice", newLastUsedDevice);
+}
+
+
+int Settings::lastAlignment() {
+    int value = Config::stateRead("LastAlignment", defaultLastAlignment());
+    if ((value < -1) || (value > 9)) { return  defaultLastAlignment(); }
+    return value;
+}
+
+void Settings::setLastAlignment(int newLastAlignment) {
+    Config::stateWrite("LastAlignment", newLastAlignment);
 }

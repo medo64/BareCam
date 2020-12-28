@@ -24,6 +24,11 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
         this->activateWindow(); //workaround for Windows
     });
 
+
+    // restore settings
+    _lastAlignment = (Alignment)Settings::lastAlignment();
+
+    // just disable screensaver
     if (Settings::disableScreensaver()) { Screensaver::Suspend(winId()); }
 
     //debug
@@ -69,7 +74,9 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
 #endif
 
     startNextCamera(Settings::lastUsedDevice());
-    setWindowSize(0, 0, Alignment::FullScreen);
+    if (Settings::fullScreenStartup()) {
+        setWindowSize(0, 0, Alignment::FullScreen);
+    }
 
     _statusUpdateTimer = new QTimer(this);
     connect(_statusUpdateTimer, &QTimer::timeout, this, &MainWindow::onStatusUpdate);
@@ -173,7 +180,7 @@ void MainWindow::startNextCamera(QString deviceName) {
         _cameraHeight = dSettings.resolution().height();
         break;
     }
-    setWindowSize(this->width(), this->height(), _lastAlignment);
+    setWindowSize(0, 0, _lastAlignment);
 
     connect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate);
 
@@ -336,10 +343,12 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
     }
 
     _lastAlignment = alignment;
+
+    Settings::setLastAlignment((int)_lastAlignment);
 }
 
 void MainWindow::changeWindowSize(int difference) {
-    if (_lastAlignment == 0) { return; }  // ignore if full screen
+    if (_lastAlignment == Alignment::FullScreen) { return; }  // ignore if full screen
 
     int width = this->width();
     int height = this->height();

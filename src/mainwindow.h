@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow {
         int _lastTop = 0;
         int _lastWidth = 0;
         int _lastHeight = 0;
-        Alignment _lastAlignment = Alignment::Custom;
+        Alignment _lastAlignment;
 
     private:
         Ui::MainWindow* ui;
