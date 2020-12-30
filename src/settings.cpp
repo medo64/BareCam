@@ -41,11 +41,51 @@ void Settings::setLastUsedDevice(QString newLastUsedDevice) {
 
 
 int Settings::lastAlignment() {
-    int value = Config::stateRead("LastAlignment", defaultLastAlignment());
+    int value = Config::stateRead("Alignment", defaultLastAlignment());
     if ((value < -1) || (value > 9)) { return  defaultLastAlignment(); }
     return value;
 }
 
 void Settings::setLastAlignment(int newLastAlignment) {
-    Config::stateWrite("LastAlignment", newLastAlignment);
+    Config::stateWrite("Alignment", newLastAlignment);
+}
+
+
+int Settings::lastLeft() {
+    return Config::stateRead("Left", defaultLastLeft());
+}
+
+void Settings::setLastLeft(int newLastLeft) {
+    Config::stateWrite("Left", newLastLeft);
+}
+
+
+int Settings::lastTop() {
+    return Config::stateRead("Top", defaultLastTop());
+}
+
+void Settings::setLastTop(int newLastTop) {
+    Config::stateWrite("Top", newLastTop);
+}
+
+
+int Settings::lastWidth() {
+    int value = Config::stateRead("Width", defaultLastWidth());
+    if (value < 0) { return  defaultLastWidth(); }
+    return value;
+}
+
+void Settings::setLastWidth(int newLastWidth) {
+    Config::stateWrite("Width", newLastWidth);
+}
+
+
+int Settings::lastHeight() {
+    int value = Config::stateRead("Height", defaultLastHeight());
+    if (value < 0) { return  defaultLastHeight(); }
+    return value;
+}
+
+void Settings::setLastHeight(int newLastHeight) {
+    Config::stateWrite("Height", newLastHeight);
 }

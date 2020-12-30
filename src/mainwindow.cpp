@@ -1,5 +1,6 @@
 #include <math.h>
 #include <QCameraInfo>
+#include <QDebug>
 #include <QGuiApplication>
 #include <QtWidgets>
 #include "medo/singleinstance.h"
@@ -24,9 +25,13 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
         this->activateWindow(); //workaround for Windows
     });
 
-
     // restore settings
     _lastAlignment = (Alignment)Settings::lastAlignment();
+    _lastLeft = Settings::lastLeft();
+    _lastTop = Settings::lastTop();
+    _lastWidth = Settings::lastWidth();
+    _lastHeight = Settings::lastHeight();
+    qDebug().noquote().nospace() << "[Window] Size restored: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
 
     // just disable screensaver
     if (Settings::disableScreensaver()) { Screensaver::Suspend(winId()); }
@@ -129,6 +134,40 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
     }
 
     QMainWindow::keyPressEvent(e);
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent* event) {
+    if (_lastAlignment != Alignment::FullScreen) {
+        if (!_lastClickLocation.isNull()) {
+            QPoint delta = event->globalPos() - _lastClickLocation;
+            move(x() + delta.x(), y() + delta.y());
+            _lastClickLocation = event->globalPos();
+            _lastAlignment = Alignment::Custom; //switch to custom alignment
+        }
+    }
+    QMainWindow::mouseMoveEvent(event);
+}
+
+void MainWindow::mousePressEvent(QMouseEvent* event) {
+    if ((windowState() != Qt::WindowFullScreen) && (event->button() == Qt::MouseButton::LeftButton)) {
+        qDebug().noquote().nospace() << "[Window] Mouse pressed: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height();
+        _lastClickLocation = event->globalPos();
+        setCursor(Qt::SizeAllCursor);
+    }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::MouseButton::LeftButton) {
+        _lastClickLocation = QPoint();
+        if (windowState() != Qt::WindowFullScreen) {
+            qDebug().noquote().nospace() << "[Window] Mouse released: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height();
+            unsetCursor();
+            _lastLeft = geometry().left();
+            _lastTop = geometry().top();
+            Settings::setLastLeft(_lastLeft);
+            Settings::setLastTop(_lastTop);
+        }
+    }
 }
 
 
@@ -342,9 +381,21 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
         }
     }
 
-    _lastAlignment = alignment;
+    qDebug().noquote().nospace() << "[Window] Sized: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height() << " /" << alignment;
 
+    _lastAlignment = alignment;
     Settings::setLastAlignment((int)_lastAlignment);
+
+    if (alignment != Alignment::FullScreen) {  // store width and height if not full screen
+        if (alignment == Alignment::Custom) {  // store left and top if custom
+            Settings::setLastLeft(_lastLeft);
+            Settings::setLastTop(_lastTop);
+        }
+        Settings::setLastWidth(_lastWidth);
+        Settings::setLastHeight(_lastHeight);
+    }
+
+    qDebug().noquote().nospace() << "[Window] Size saved: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
 }
 
 void MainWindow::changeWindowSize(int difference) {

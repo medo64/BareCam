@@ -18,6 +18,9 @@ class MainWindow : public QMainWindow {
     protected:
         virtual void closeEvent(QCloseEvent* event);
         virtual void keyPressEvent(QKeyEvent* event);
+        virtual void mouseMoveEvent(QMouseEvent* event);
+        virtual void mousePressEvent(QMouseEvent* event);
+        virtual void mouseReleaseEvent(QMouseEvent* event);
 
     private:
         enum Alignment {
@@ -46,6 +49,7 @@ class MainWindow : public QMainWindow {
         int _lastWidth = 0;
         int _lastHeight = 0;
         Alignment _lastAlignment;
+        QPoint _lastClickLocation;
 
     private:
         Ui::MainWindow* ui;

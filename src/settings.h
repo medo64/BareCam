@@ -26,4 +26,20 @@ class Settings {
         static void setLastAlignment(int newLastAlignment);
         static int defaultLastAlignment() { return 0; }
 
+        static int lastLeft();
+        static void setLastLeft(int newLastLeft);
+        static int defaultLastLeft() { return 0; }
+
+        static int lastTop();
+        static void setLastTop(int newLastTop);
+        static int defaultLastTop() { return 0; }
+
+        static int lastWidth();
+        static void setLastWidth(int newLastWidth);
+        static int defaultLastWidth() { return 0; }
+
+        static int lastHeight();
+        static void setLastHeight(int newLastHeight);
+        static int defaultLastHeight() { return 0; }
+
 };
