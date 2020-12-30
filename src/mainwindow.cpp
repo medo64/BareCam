@@ -318,21 +318,21 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
 
     if (alignment == Alignment::FullScreen) {  // full screen
 
-        if (_lastAlignment != Alignment::FullScreen) {
+        if (windowState() != Qt::WindowFullScreen) {
             setCursor(Qt::BlankCursor);
             setWindowState(Qt::WindowFullScreen);
         }
 
     } else {  // not full screen
 
-        if (_lastAlignment == Alignment::FullScreen) {
+        if (windowState() == Qt::WindowFullScreen) {
             setWindowState(Qt::WindowActive);
             this->unsetCursor();
         }
 
         this->setGeometry(rect);
 
-        if (_lastAlignment != Alignment::FullScreen) {
+        if (windowState() != Qt::WindowFullScreen) {
             if (_lastAlignment == Alignment::Custom) {
                 _lastLeft = rect.left();
                 _lastTop = rect.top();
