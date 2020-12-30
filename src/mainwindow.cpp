@@ -254,6 +254,10 @@ void MainWindow::showMenu() {
         }
     }
 
+    menu.addSeparator();
+    menu.addAction("&About", this, &MainWindow::onMenuAbout);
+
+
     auto rect = this->contentsRect();
     auto point = rect.center();
     point = mapToGlobal(point);
@@ -268,6 +272,31 @@ void MainWindow::onMenuCameraSelected() {
     QString deviceName = action->data().toString();
     startNextCamera(deviceName);
 }
+
+void MainWindow::onMenuAbout() {
+    QString description = QCoreApplication::applicationName() + " " + APP_VERSION;
+    QString commit = APP_COMMIT;
+    if (commit.length() > 0) {
+        description.append("+");
+        description.append(APP_COMMIT);
+    }
+#ifdef QT_DEBUG
+    description.append("\nDEBUG");
+#endif
+    description.append("\n\nQt ");
+
+    QString runtimeVersion = qVersion();
+    QString compileVersion = APP_QT_VERSION;
+    description.append(runtimeVersion);
+    if (runtimeVersion != compileVersion) {
+        description.append(" / ");
+        description.append(compileVersion);
+    }
+    description.append("\n" + QSysInfo::prettyProductName());
+    description.append("\n" + QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
+    QMessageBox::about(this, "About",  description);
+}
+
 
 void MainWindow::onStatusUpdate() {
     bool hasIssues = !_camera->isAvailable();

@@ -60,6 +60,7 @@ class MainWindow : public QMainWindow {
 
     private slots:
         void onMenuCameraSelected();
+        void onMenuAbout();
         void onStatusUpdate();
 
 };
