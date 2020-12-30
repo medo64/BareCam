@@ -279,6 +279,8 @@ void MainWindow::showMenu(QPoint location) {
 
     menu.addAction("&About", this, &MainWindow::onMenuAbout);
 
+    menu.addSeparator();
+    menu.addAction("E&xit", this, &MainWindow::onMenuExit);
 
     auto point = mapToGlobal(location);
     point.rx() -= menu.sizeHint().width() / 2; //move it left a bit
@@ -292,6 +294,23 @@ void MainWindow::onMenuCameraSelected() {
     QAction* action = qobject_cast<QAction*>(sender());
     QString deviceName = action->data().toString();
     startNextCamera(deviceName);
+}
+
+void MainWindow::onMenuSettingsFullscreenStartup() {
+    Settings::setFullScreenStartup(!Settings::fullScreenStartup());
+}
+
+void MainWindow::onMenuSettingsUseEscape() {
+    Settings::setUseEscapeToExit(!Settings::useEscapeToExit());
+}
+
+void MainWindow::onMenuSettingsDisableScreensaver() {
+    Settings::setDisableScreensaver(!Settings::disableScreensaver());
+    if (Settings::disableScreensaver()) {
+        Screensaver::Suspend(winId());
+    } else {
+        Screensaver::Resume();
+    }
 }
 
 void MainWindow::onMenuAbout() {
@@ -318,21 +337,8 @@ void MainWindow::onMenuAbout() {
     QMessageBox::about(this, "About",  description);
 }
 
-void MainWindow::onMenuSettingsFullscreenStartup() {
-    Settings::setFullScreenStartup(!Settings::fullScreenStartup());
-}
-
-void MainWindow::onMenuSettingsUseEscape() {
-    Settings::setUseEscapeToExit(!Settings::useEscapeToExit());
-}
-
-void MainWindow::onMenuSettingsDisableScreensaver() {
-    Settings::setDisableScreensaver(!Settings::disableScreensaver());
-    if (Settings::disableScreensaver()) {
-        Screensaver::Suspend(winId());
-    } else {
-        Screensaver::Resume();
-    }
+void MainWindow::onMenuExit() {
+    close();
 }
 
 
