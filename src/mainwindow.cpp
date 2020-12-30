@@ -256,6 +256,7 @@ void MainWindow::showMenu() {
 
     auto rect = this->contentsRect();
     auto point = rect.center();
+    point = mapToGlobal(point);
     point.rx() -= menu.sizeHint().width() / 2; //move it left a bit
     point.ry() -= menu.sizeHint().height() / 2; //move it up a bit
     menu.exec(point);
