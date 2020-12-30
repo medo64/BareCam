@@ -255,6 +255,24 @@ void MainWindow::showMenu() {
     }
 
     menu.addSeparator();
+
+    {
+        QMenu* settingsMenu = new QMenu("&Settings", this);
+        menu.addMenu(settingsMenu);
+
+        auto fullscreenAction = settingsMenu->addAction("Force &Full-screen on Startup", this, &MainWindow::onMenuSettingsFullscreenStartup);
+        fullscreenAction->setCheckable(true);
+        fullscreenAction->setChecked(Settings::fullScreenStartup());
+
+        auto useEscapeAction = settingsMenu->addAction("Use &Escape to Exit", this, &MainWindow::onMenuSettingsUseEscape);
+        useEscapeAction->setCheckable(true);
+        useEscapeAction->setChecked(Settings::useEscapeToExit());
+
+        auto disableScreensaverAction = settingsMenu->addAction("Disable &Screensaver", this, &MainWindow::onMenuSettingsDisableScreensaver);
+        disableScreensaverAction->setCheckable(true);
+        disableScreensaverAction->setChecked(Settings::disableScreensaver());
+    }
+
     menu.addAction("&About", this, &MainWindow::onMenuAbout);
 
 
@@ -295,6 +313,23 @@ void MainWindow::onMenuAbout() {
     description.append("\n" + QSysInfo::prettyProductName());
     description.append("\n" + QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
     QMessageBox::about(this, "About",  description);
+}
+
+void MainWindow::onMenuSettingsFullscreenStartup() {
+    Settings::setFullScreenStartup(!Settings::fullScreenStartup());
+}
+
+void MainWindow::onMenuSettingsUseEscape() {
+    Settings::setUseEscapeToExit(!Settings::useEscapeToExit());
+}
+
+void MainWindow::onMenuSettingsDisableScreensaver() {
+    Settings::setDisableScreensaver(!Settings::disableScreensaver());
+    if (Settings::disableScreensaver()) {
+        Screensaver::Suspend(winId());
+    } else {
+        Screensaver::Resume();
+    }
 }
 
 

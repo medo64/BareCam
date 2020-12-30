@@ -61,6 +61,9 @@ class MainWindow : public QMainWindow {
     private slots:
         void onMenuCameraSelected();
         void onMenuAbout();
+        void onMenuSettingsFullscreenStartup();
+        void onMenuSettingsUseEscape();
+        void onMenuSettingsDisableScreensaver();
         void onStatusUpdate();
 
 };
