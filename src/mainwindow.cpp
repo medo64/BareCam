@@ -123,8 +123,11 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
             if (Settings::useEscapeToExit()) { close(); }
             break;
 
-        case Qt::Key_Return:
-            showMenu();
+        case Qt::Key_Return: {
+                auto rect = this->contentsRect();
+                auto point = rect.center();
+                showMenu(point);
+            }
             break;
 
         case Qt::Key_Space:
@@ -159,7 +162,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event) {
-    if ((windowState() != Qt::WindowFullScreen) && (event->button() == Qt::MouseButton::LeftButton)) {
+    if (event->button() == Qt::MouseButton::RightButton) {
+        showMenu(event->pos());
+    } else if ((windowState() != Qt::WindowFullScreen) && (event->button() == Qt::MouseButton::LeftButton)) {
         qDebug().noquote().nospace() << "[Window] Mouse pressed: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height();
         _lastClickLocation = event->globalPos();
         setCursor(Qt::SizeAllCursor);
@@ -239,7 +244,7 @@ void MainWindow::startNextCamera(QString deviceName) {
     QApplication::restoreOverrideCursor();
 }
 
-void MainWindow::showMenu() {
+void MainWindow::showMenu(QPoint location) {
     QMenu menu(this);
 
     QString currentDeviceName = Settings::lastUsedDevice();
@@ -255,7 +260,6 @@ void MainWindow::showMenu() {
     }
 
     menu.addSeparator();
-
     {
         QMenu* settingsMenu = new QMenu("&Settings", this);
         menu.addMenu(settingsMenu);
@@ -276,12 +280,11 @@ void MainWindow::showMenu() {
     menu.addAction("&About", this, &MainWindow::onMenuAbout);
 
 
-    auto rect = this->contentsRect();
-    auto point = rect.center();
-    point = mapToGlobal(point);
+    auto point = mapToGlobal(location);
     point.rx() -= menu.sizeHint().width() / 2; //move it left a bit
     point.ry() -= menu.sizeHint().height() / 2; //move it up a bit
-    menu.exec(point);
+
+    menu.exec(location);
 }
 
 
