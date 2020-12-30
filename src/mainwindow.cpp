@@ -136,6 +136,16 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
     QMainWindow::keyPressEvent(e);
 }
 
+void MainWindow::mouseDoubleClickEvent(QMouseEvent* event) {
+    if (event->button() == Qt::MouseButton::LeftButton) {
+        if (_lastAlignment != Alignment::FullScreen) {
+            setWindowSize(_lastWidth, _lastHeight, Alignment::FullScreen);
+        } else {
+            setWindowSize(_lastWidth, _lastHeight, Alignment::Custom);
+        }
+    }
+}
+
 void MainWindow::mouseMoveEvent(QMouseEvent* event) {
     if (_lastAlignment != Alignment::FullScreen) {
         if (!_lastClickLocation.isNull()) {
