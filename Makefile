@@ -129,7 +129,7 @@ package: dist
 	@gzip -cn --best build/man/barecam.1 > $(PACKAGE_DIR)/usr/share/man/man1/barecam.1.gz
 	@find $(PACKAGE_DIR)/ -type d -exec chmod 755 {} +
 	@find $(PACKAGE_DIR)/ -type f -exec chmod 644 {} +
-	@chmod 755 $(PACKAGE_DIR)/DEBIAN/p*inst $(PACKAGE_DIR)/DEBIAN/p*rm
+	@chmod 755 $(PACKAGE_DIR)/DEBIAN/p*inst $(PACKAGE_DIR)/DEBIAN/p*rm $(PACKAGE_DIR)/DEBIAN/config
 	@install -d $(PACKAGE_DIR)/opt/barecam/
 	@install bin/barecam $(PACKAGE_DIR)/opt/barecam/
 	@strip $(PACKAGE_DIR)/opt/barecam/barecam

@@ -3,9 +3,9 @@ Version:        MAJOR.MINOR.PATCH
 Architecture:   ARCHITECTURE
 Maintainer:     Josip Medved <jmedved@jmedved.com>
 Homepage:       https://www.medo64.com/barecam/
-Description:    The simplest full-screen camera.
- It's a small application that will show your web camera in full-screen
- window and allow you to switch to next camera using space.
+Description:    Simplest full-screen camera.
+ A small application that will show your web camera in full-screen window and
+ allow you to switch to next camera using space.
 Section:        video
 Priority:       optional
 Depends:        libc6, gnupg2, debconf, libqt5gui5, libqt5widgets5, libqt5core5a, libqt5multimedia5, libqt5multimedia5-plugins, libqt5multimediawidgets5
