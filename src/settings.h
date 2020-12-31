@@ -15,7 +15,7 @@ class Settings {
 
         static bool fullScreenStartup();
         static void setFullScreenStartup(bool newFullScreenStartup);
-        static bool defaultFullScreenStartup() { return true; }
+        static bool defaultFullScreenStartup() { return false; }
 
     public:
         static QString lastUsedDevice();
