@@ -80,10 +80,6 @@ for SIGNTOOL_PATH in "/c/Program Files (x86)/Microsoft SDKs/ClickOnce/SignTool/s
     fi
 done
 
-if [[ ! -f "$CMD_SIGNTOOL" ]]; then
-    echo -e "${ESCAPE_WARNING}Cannot find signtool!${ESCAPE_RESET}" >&2
-fi
-
 
 CMD_WINRAR=""
 for WINRAR_PATH in "/c/Program Files/WinRAR/WinRAR.exe"; do
@@ -97,7 +93,11 @@ done
 echo -e "QMake directory ...: ${ESCAPE_INFO}$QMAKE_DIR${ESCAPE_RESET}"
 echo -e "QMake executable ..: ${ESCAPE_INFO}$CMD_QMAKE${ESCAPE_RESET}"
 echo -e "Make executable ...: ${ESCAPE_INFO}$CMD_MAKE${ESCAPE_RESET}"
-echo -e "SignTool executable: ${ESCAPE_INFO}$CMD_SIGNTOOL${ESCAPE_RESET}"
+if [[ -f "$CMD_SIGNTOOL" ]]; then
+    echo -e "SignTool executable: ${ESCAPE_INFO}$CMD_SIGNTOOL${ESCAPE_RESET}"
+else
+    echo -e "SignTool executable: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+fi
 if [[ -f "$CMD_WINRAR" ]]; then
     echo -e "WinRAR executable .: ${ESCAPE_INFO}$CMD_WINRAR${ESCAPE_RESET}"
 else
