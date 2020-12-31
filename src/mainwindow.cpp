@@ -26,11 +26,11 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     });
 
     // restore settings
-    _lastAlignment = (Alignment)Settings::lastAlignment();
-    _lastLeft = Settings::lastLeft();
     _lastTop = Settings::lastTop();
+    _lastLeft = Settings::lastLeft();
     _lastWidth = Settings::lastWidth();
     _lastHeight = Settings::lastHeight();
+    _lastAlignment = (Alignment)Settings::lastAlignment();
     qDebug().noquote().nospace() << "[Window] Size restored: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
 
     // just disable screensaver
@@ -41,7 +41,7 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
     auto defaultCamera = QCameraInfo::defaultCamera();
     for (const QCameraInfo& dCameraInfo : QCameraInfo::availableCameras()) {
         bool isDefault = (dCameraInfo == defaultCamera);
-        qDebug().noquote().nospace() << "[Camera]" << dCameraInfo.description() << (isDefault ? "*" : "");
+        qDebug().noquote().nospace() << "[Camera] " << dCameraInfo.description() << (isDefault ? "*" : "");
         qDebug().noquote().nospace() << "[Camera]  " << dCameraInfo.deviceName();
         switch (dCameraInfo.position()) {
             case QCamera::FrontFace:
@@ -89,6 +89,13 @@ MainWindow::MainWindow() : ui(new Ui::MainWindow) {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
+    Settings::setLastTop(_lastTop);
+    Settings::setLastLeft(_lastLeft);
+    Settings::setLastWidth(_lastWidth);
+    Settings::setLastHeight(_lastHeight);
+    Settings::setLastAlignment(_lastAlignment);
+    qDebug().noquote().nospace() << "[Window] Size stored: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
+
     Screensaver::Resume();
     QMainWindow::closeEvent(event);
 }
@@ -99,7 +106,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
     switch (e->key()) {
 
         case Qt::Key_0:
-            if (_lastAlignment != Alignment::FullScreen) {
+            if (windowState() != Qt::WindowFullScreen) {
                 setWindowSize(_lastWidth, _lastHeight, Alignment::FullScreen);
             } else {
                 setWindowSize(_lastWidth, _lastHeight, Alignment::Custom);
@@ -146,7 +153,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent* event) {
     if (event->button() == Qt::MouseButton::LeftButton) {
-        if (_lastAlignment != Alignment::FullScreen) {
+        if (windowState() != Qt::WindowFullScreen) {
             setWindowSize(_lastWidth, _lastHeight, Alignment::FullScreen);
         } else {
             setWindowSize(_lastWidth, _lastHeight, Alignment::Custom);
@@ -155,7 +162,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent* event) {
-    if (_lastAlignment != Alignment::FullScreen) {
+    if (windowState() != Qt::WindowFullScreen) {
         if (!_lastClickLocation.isNull()) {
             QPoint delta = event->globalPos() - _lastClickLocation;
             move(x() + delta.x(), y() + delta.y());
@@ -182,11 +189,21 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* event) {
         if (windowState() != Qt::WindowFullScreen) {
             qDebug().noquote().nospace() << "[Window] Mouse released: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height();
             unsetCursor();
-            _lastLeft = geometry().left();
-            _lastTop = geometry().top();
-            Settings::setLastLeft(_lastLeft);
-            Settings::setLastTop(_lastTop);
         }
+    }
+}
+
+void MainWindow::moveEvent(QMoveEvent*) {
+    if (isVisible() && (windowState() != Qt::WindowFullScreen)) {
+        _lastTop = geometry().top();
+        _lastLeft = geometry().left();
+    }
+}
+
+void MainWindow::resizeEvent(QResizeEvent*) {
+    if (isVisible() && (windowState() != Qt::WindowFullScreen)) {
+        _lastWidth = geometry().width();
+        _lastHeight = geometry().height();
     }
 }
 
@@ -239,7 +256,7 @@ void MainWindow::startNextCamera(QString deviceName) {
         _cameraHeight = dSettings.resolution().height();
         break;
     }
-    setWindowSize(0, 0, _lastAlignment);
+    setWindowSize(_lastWidth, _lastHeight, _lastAlignment);
 
     connect(_camera.data(), &QCamera::stateChanged, this, &MainWindow::onStatusUpdate);
 
@@ -363,15 +380,15 @@ void MainWindow::onStatusUpdate() {
 }
 
 void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
-    int newWidth = width;
-    int newHeight = height;
-
     auto screenNumber = QApplication::desktop()->screenNumber(this);
     QRect desktopRect = QGuiApplication::screens().at(screenNumber)->geometry();
     if (width == 0) { width = desktopRect.width() / 3; }
     if (height == 0) { height = desktopRect.height() / 3; }
     if (width > desktopRect.width()) { width = desktopRect.width(); }
     if (height > desktopRect.height()) { height = desktopRect.height(); }
+
+    int newWidth = width;
+    int newHeight = height;
 
     if ((_cameraWidth != 0) && (_cameraHeight != 0)) {  // check ratios if camera width and height are unknown
         newHeight = (int)round(((double)width / _cameraWidth) * _cameraHeight);
@@ -460,31 +477,11 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
 
         this->setGeometry(rect);
 
-        if (windowState() != Qt::WindowFullScreen) {
-            if (_lastAlignment == Alignment::Custom) {
-                _lastLeft = rect.left();
-                _lastTop = rect.top();
-            }
-            _lastWidth = rect.width();
-            _lastHeight = rect.height();
-        }
     }
 
     qDebug().noquote().nospace() << "[Window] Sized: " << geometry().left() << ", " << geometry().top() << ", " << geometry().width() << ", " << geometry().height() << " /" << alignment;
 
     _lastAlignment = alignment;
-    Settings::setLastAlignment((int)_lastAlignment);
-
-    if (alignment != Alignment::FullScreen) {  // store width and height if not full screen
-        if (alignment == Alignment::Custom) {  // store left and top if custom
-            Settings::setLastLeft(_lastLeft);
-            Settings::setLastTop(_lastTop);
-        }
-        Settings::setLastWidth(_lastWidth);
-        Settings::setLastHeight(_lastHeight);
-    }
-
-    qDebug().noquote().nospace() << "[Window] Size saved: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
 }
 
 void MainWindow::deltaWindowSize(int difference) {
