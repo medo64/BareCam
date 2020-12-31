@@ -1,6 +1,12 @@
 ## Release Notes ##
 
 
+### 1.0.0 [2020-12-30] ###
+
+* Added settings
+* Added mouse movement support
+
+
 ### 0.0.3 [2020-12-08] ###
 
 * Auto-hide the cursor
