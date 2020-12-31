@@ -39,22 +39,8 @@ DIST_VERSION=`grep VERSION src/BareCam.pro | head -1 | cut -d'=' -f2 | awk '{pri
 CMD_QMAKE=`ls $QT_PATH/**/**/bin/qmake.exe | sort | tail -1`
 CMD_MAKE=`ls $QT_PATH/Tools/**/bin/mingw32-make.exe | sort | tail -1`
 
-if [[ ! -f "$CMD_QMAKE" ]]; then
-    echo -e "${ESCAPE_ERROR}Cannot find qmake!${ESCAPE_RESET}" >&2
-    exit 1
-fi
 QMAKE_DIR=`dirname $CMD_QMAKE`
-
-if [[ ! -f "$CMD_MAKE" ]]; then
-    echo -e "${ESCAPE_ERROR}Cannot find make!${ESCAPE_RESET}" >&2
-    exit 1
-fi
-
 OPENSSL_DIR=$QT_PATH/Tools/QtCreator/bin
-if [[ ! -f "$OPENSSL_DIR/libcrypto-1_1-x64.dll" ]] || [[ ! -f "$OPENSSL_DIR/libssl-1_1-x64.dll" ]]; then
-    echo -e "${ESCAPE_WARNING}Cannot find OpenSSL files.${ESCAPE_RESET}" >&2
-fi
-
 
 CMD_CERTUTIL=`command -v certutil`
 if [[ ! -f "$CMD_CERTUTIL" ]]; then
@@ -80,6 +66,13 @@ for SIGNTOOL_PATH in "/c/Program Files (x86)/Microsoft SDKs/ClickOnce/SignTool/s
     fi
 done
 
+CMD_INNOSETUP=""
+for INNOSETUP_PATH in "/c/Program Files (x86)/Inno Setup 6/ISCC.exe"; do
+    if [[ -f "$INNOSETUP_PATH" ]]; then
+        CMD_INNOSETUP="$INNOSETUP_PATH"
+        break
+    fi
+done
 
 CMD_WINRAR=""
 for WINRAR_PATH in "/c/Program Files/WinRAR/WinRAR.exe"; do
@@ -90,23 +83,53 @@ for WINRAR_PATH in "/c/Program Files/WinRAR/WinRAR.exe"; do
 done
 
 
-echo -e "QMake directory ...: ${ESCAPE_INFO}$QMAKE_DIR${ESCAPE_RESET}"
-echo -e "QMake executable ..: ${ESCAPE_INFO}$CMD_QMAKE${ESCAPE_RESET}"
-echo -e "Make executable ...: ${ESCAPE_INFO}$CMD_MAKE${ESCAPE_RESET}"
-if [[ -f "$CMD_SIGNTOOL" ]]; then
-    echo -e "SignTool executable: ${ESCAPE_INFO}$CMD_SIGNTOOL${ESCAPE_RESET}"
+if [[ -d "$QMAKE_DIR" ]]; then
+    echo -e "QMake directory ....: ${ESCAPE_INFO}$QMAKE_DIR${ESCAPE_RESET}"
 else
-    echo -e "SignTool executable: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+    echo -e "QMake directory ....: ${ESCAPE_ERROR}Not found!${ESCAPE_RESET}"
 fi
-if [[ -f "$CMD_WINRAR" ]]; then
-    echo -e "WinRAR executable .: ${ESCAPE_INFO}$CMD_WINRAR${ESCAPE_RESET}"
+
+if [[ -f "$CMD_QMAKE" ]]; then
+    echo -e "QMake executable ...: ${ESCAPE_INFO}$CMD_QMAKE${ESCAPE_RESET}"
 else
-    echo -e "WinRAR executable .: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+    echo -e "QMake executable ...: ${ESCAPE_ERROR}Not found!${ESCAPE_RESET}"
+fi
+
+if [[ -f "$CMD_QMAKE" ]]; then
+    echo -e "Make executable ....: ${ESCAPE_INFO}$CMD_MAKE${ESCAPE_RESET}"
+else
+    echo -e "Make executable ....: ${ESCAPE_ERROR}Not found!${ESCAPE_RESET}"
+fi
+
+if [[ -f "$OPENSSL_DIR/libcrypto-1_1-x64.dll" ]] && [[ -f "$OPENSSL_DIR/libssl-1_1-x64.dll" ]]; then
+    echo -e "OpenSSL directory ..: ${ESCAPE_INFO}$OPENSSL_DIR${ESCAPE_RESET}"
+else
+    echo -e "OpenSSL directory ..: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+fi
+
+if [[ -f "$CMD_SIGNTOOL" ]]; then
+    echo -e "SignTool executable : ${ESCAPE_INFO}$CMD_SIGNTOOL${ESCAPE_RESET}"
+else
+    echo -e "SignTool executable : ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+fi
+
+if [[ -f "$CMD_INNOSETUP" ]]; then
+    echo -e "InnoSetup executable: ${ESCAPE_INFO}$CMD_INNOSETUP${ESCAPE_RESET}"
+else
+    echo -e "InnoSetup executable: ${ESCAPE_ERROR}Not found!${ESCAPE_RESET}"
+fi
+
+if [[ -f "$CMD_WINRAR" ]]; then
+    echo -e "WinRAR executable ..: ${ESCAPE_INFO}$CMD_WINRAR${ESCAPE_RESET}"
+else
+    echo -e "WinRAR executable ..: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
 fi
 
 
 HAS_UNCOMMITTED_RESULT=`git diff --quiet ; echo $?`
 
+
+echo
 
 rm bin/* 2> /dev/null
 rm -r bin/platforms 2> /dev/null
@@ -118,6 +141,16 @@ cd build
 
 
 if [[ "$BUILD" != "" ]]; then
+    if [[ ! -f "$CMD_QMAKE" ]]; then
+        echo -e "${ESCAPE_ERROR}Cannot find qmake!${ESCAPE_RESET}" >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$CMD_MAKE" ]]; then
+        echo -e "${ESCAPE_ERROR}Cannot find make!${ESCAPE_RESET}" >&2
+        exit 1
+    fi
+
     PATH=$PATH:`dirname $CMD_MAKE`
 
     $CMD_QMAKE -spec win32-g++ CONFIG+=$BUILD ../src/BareCam.pro
@@ -177,15 +210,13 @@ if [[ "$BUILD" != "" ]]; then
             if [[ $DO_PACKAGE -ne 0 ]]; then
                 echo
 
-                INNOSETUP_PATH='/c/Program Files (x86)/Inno Setup 6/ISCC.exe'
-
-                if [[ ! -f "$INNOSETUP_PATH" ]]; then
+                if [[ ! -f "$CMD_INNOSETUP" ]]; then
                     echo -e "${ESCAPE_ERROR}Cannot find InnoSetup 6!${ESCAPE_RESET}" >&2
                     exit 1
                 fi
 
                 cd ..
-                "$INNOSETUP_PATH" package/win/BareCam.iss
+                "$CMD_INNOSETUP" package/win/BareCam.iss
                 if [[ $? -eq 0 ]]; then
                     LAST_PACKAGE=`ls -t dist/*.exe | head -1`
 
@@ -206,8 +237,8 @@ if [[ "$BUILD" != "" ]]; then
                 fi
 
                 # make ZIP
-                ZIP_NAME="$DIST_NAME-$DIST_VERSION.zip"
-                "$CMD_WINRAR" a -afzip -ep -m5 dist/$ZIP_NAME bin/*
+                ZIP_NAME="dist/$DIST_NAME-$DIST_VERSION.zip"
+                "$CMD_WINRAR" a -afzip -ep -m5 $ZIP_NAME bin/*
                 if [[ $? -eq 0 ]]; then
                     echo -e "${ESCAPE_RESULT}Package created ($ZIP_NAME).${ESCAPE_RESET}" >&2
                 else
