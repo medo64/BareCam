@@ -42,7 +42,8 @@ class MainWindow : public QMainWindow {
         void startNextCamera(QString deviceName = QString());
         void showMenu(QPoint location);
         void setWindowSize(int width, int height, Alignment alignment);
-        void changeWindowSize(int difference);
+        void deltaWindowSize(int difference);
+        void deltaWindowMove(int diffX, int diffY);
         int _cameraWidth = 0;
         int _cameraHeight = 0;
         int _lastLeft = 0;

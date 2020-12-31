@@ -116,8 +116,13 @@ void MainWindow::keyPressEvent(QKeyEvent* e) {
         case Qt::Key_8: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperCenter); break;
         case Qt::Key_9: setWindowSize(_lastWidth, _lastHeight, Alignment::UpperRight); break;
 
-        case Qt::Key_Minus: changeWindowSize(-1); break;
-        case Qt::Key_Plus: changeWindowSize(+1); break;
+        case Qt::Key_Minus: deltaWindowSize(-1); break;
+        case Qt::Key_Plus: deltaWindowSize(+1); break;
+
+        case Qt::Key_Left: deltaWindowMove(-1, 0); break;
+        case Qt::Key_Right: deltaWindowMove(+1, 0); break;
+        case Qt::Key_Up: deltaWindowMove(0, -1); break;
+        case Qt::Key_Down: deltaWindowMove(0, +1); break;
 
         case Qt::Key_Escape:
             if (Settings::useEscapeToExit()) { close(); }
@@ -482,8 +487,8 @@ void MainWindow::setWindowSize(int width, int height, Alignment alignment) {
     qDebug().noquote().nospace() << "[Window] Size saved: " << _lastLeft << ", " << _lastTop << ", " << _lastWidth << ", " << _lastHeight << " /" << _lastAlignment;
 }
 
-void MainWindow::changeWindowSize(int difference) {
-    if (_lastAlignment == Alignment::FullScreen) { return; }  // ignore if full screen
+void MainWindow::deltaWindowSize(int difference) {
+    if (windowState() == Qt::WindowFullScreen) { return; }  // ignore if full screen
 
     int width = this->width();
     int height = this->height();
@@ -502,4 +507,13 @@ void MainWindow::changeWindowSize(int difference) {
 
     if ((newWidth < 200) || (newHeight < 200)) { return; }
     setWindowSize(newWidth, newHeight, _lastAlignment);
+}
+
+void MainWindow::deltaWindowMove(int diffX, int diffY) {
+    if (windowState() == Qt::WindowFullScreen) { return; }  // ignore if full screen
+
+    int newX = x() + diffX;
+    int newY = y() + diffY;
+
+    move(newX, newY);
 }
