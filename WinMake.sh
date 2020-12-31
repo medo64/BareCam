@@ -33,7 +33,7 @@ esac
 
 
 DIST_NAME='barecam'
-DIST_VERSION=`grep VERSION src/BareCam.pro | head -1 | cut -d'=' -f2 | awk '{print $$1}' | tr -d '"'`
+DIST_VERSION=`grep VERSION src/BareCam.pro | head -1 | cut -d'=' -f2 | awk '{print $$1}' | tr -d '"' | xargs`
 
 
 CMD_QMAKE=`ls $QT_PATH/**/**/bin/qmake.exe | sort | tail -1`
@@ -85,10 +85,24 @@ if [[ ! -f "$CMD_SIGNTOOL" ]]; then
 fi
 
 
+CMD_WINRAR=""
+for WINRAR_PATH in "/c/Program Files/WinRAR/WinRAR.exe"; do
+    if [[ -f "$WINRAR_PATH" ]]; then
+        CMD_WINRAR="$WINRAR_PATH"
+        break
+    fi
+done
+
+
 echo -e "QMake directory ...: ${ESCAPE_INFO}$QMAKE_DIR${ESCAPE_RESET}"
 echo -e "QMake executable ..: ${ESCAPE_INFO}$CMD_QMAKE${ESCAPE_RESET}"
 echo -e "Make executable ...: ${ESCAPE_INFO}$CMD_MAKE${ESCAPE_RESET}"
 echo -e "SignTool executable: ${ESCAPE_INFO}$CMD_SIGNTOOL${ESCAPE_RESET}"
+if [[ -f "$CMD_WINRAR" ]]; then
+    echo -e "WinRAR executable .: ${ESCAPE_INFO}$CMD_WINRAR${ESCAPE_RESET}"
+else
+    echo -e "WinRAR executable .: ${ESCAPE_WARNING}Not found!${ESCAPE_RESET}"
+fi
 
 
 HAS_UNCOMMITTED_RESULT=`git diff --quiet ; echo $?`
@@ -188,6 +202,16 @@ if [[ "$BUILD" != "" ]]; then
                     echo -e "${ESCAPE_RESULT}Package created ($LAST_PACKAGE).${ESCAPE_RESET}" >&2
                 else
                     echo -e "${ESCAPE_ERROR}Packaging failed!${ESCAPE_RESET}" >&2
+                    exit 1
+                fi
+
+                # make ZIP
+                ZIP_NAME="$DIST_NAME-$DIST_VERSION.zip"
+                "$CMD_WINRAR" a -afzip -ep -m5 dist/$ZIP_NAME bin/*
+                if [[ $? -eq 0 ]]; then
+                    echo -e "${ESCAPE_RESULT}Package created ($ZIP_NAME).${ESCAPE_RESET}" >&2
+                else
+                    echo -e "${ESCAPE_ERROR}Packaging failed ($ZIP_NAME)!${ESCAPE_RESET}" >&2
                     exit 1
                 fi
             fi
