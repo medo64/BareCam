@@ -1,6 +1,11 @@
 ## Release Notes ##
 
 
+### 1.0.1 [2020-12-31] ###
+
+* Fixed repo addition
+
+
 ### 1.0.0 [2020-12-30] ###
 
 * Added settings
