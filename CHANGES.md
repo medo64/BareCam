@@ -1,6 +1,11 @@
 ## Release Notes ##
 
 
+### 1.0.2 [2021-11-04] ###
+
+* Updated repository URL
+
+
 ### 1.0.1 [2020-12-31] ###
 
 * Fixed repo addition
