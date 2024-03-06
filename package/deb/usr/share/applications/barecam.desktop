@@ -3,7 +3,7 @@ Name=BareCam
 GenericName=Webcam
 Comment=The simplest full-screen camera
 TryExec=/opt/barecam/barecam
-Exec=/opt/barecam/barecam %f
+Exec=env QT_QPA_PLATFORM=xcb /opt/barecam/barecam %f
 Icon=barecam
 Type=Application
 Categories=GTK;GNOME;Utility;
