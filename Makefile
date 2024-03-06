@@ -133,7 +133,7 @@ package: dist
 	@install -d $(PACKAGE_DIR)/opt/barecam/
 	@install bin/barecam $(PACKAGE_DIR)/opt/barecam/
 	@strip $(PACKAGE_DIR)/opt/barecam/barecam
-	@fakeroot dpkg-deb --build $(PACKAGE_DIR)/ > /dev/null
+	@fakeroot dpkg-deb -Z gzip --build $(PACKAGE_DIR)/ > /dev/null
 	@cp /tmp/$(PACKAGE_NAME).deb dist/
 	@$(RM) -r $(PACKAGE_DIR)/
 	@lintian --suppress-tags dir-or-file-in-opt dist/$(PACKAGE_NAME).deb
