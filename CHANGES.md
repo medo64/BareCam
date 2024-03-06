@@ -1,5 +1,9 @@
 ## Release Notes ##
 
+### 1.0.3 [2024-03-05]
+
+* Workaround for crash on Wayland
+
 
 ### 1.0.2 [2021-11-04] ###
 
