@@ -21,3 +21,8 @@ The simplest full-screen camera.
 | `7`               | Camera is set to top-left corner                       |
 | `8`               | Camera is set to top-center corner                     |
 | `9`               | Camera is set to top-right corner                      |
+
+
+## Downloads
+
+The latest software can be downloaded from [my homepage](https://medo64.com/barecam/).
